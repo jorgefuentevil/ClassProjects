@@ -68,6 +68,7 @@ if(argc>3){
    printf("Message has been sent\n");
    fflush(stdout);
  }
+ close(socketfd);
  return(0);
 }
 

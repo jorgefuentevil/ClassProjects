@@ -18,18 +18,17 @@ int main(int argc, char *argv[]){
   struct sockaddr_in  serveraddr;
   socklen_t socksize=sizeof(struct sockaddr_in);
 
-  //Recogemos los parametros para crear el socket
   if(argc<3 || argc>5){
-   	 fprintf(stderr,"Numero de parametros incorrecto\n");
+   	 fprintf(stderr,"Invalid number of arguments\n");
    	 exit(0);
   }
   if(argc==5){
   	if(strcmp(argv[2],"-p")!=0){
-		fprintf(stderr,"El parametro %s no existe",argv[2]);
+		fprintf(stderr,"Argument %s does not exist",argv[2]);
 		exit(0);
 	}
         if(sscanf(argv[3],"%i",&npuerto)!=1){
-        	 fprintf(stderr,"El puerto es incorrecto");
+        	 fprintf(stderr,"Incorrect port");
 		 exit(0);
 	}
 	cadena=argv[4];
@@ -38,17 +37,17 @@ int main(int argc, char *argv[]){
 	  cadena=argv[2];
   }
   if(inet_aton(argv[1],&ip)==0){
-	  fprintf(stderr,"Ip no valida\n");
+	  fprintf(stderr,"Not valid ip\n");
 	  exit(0);
   }
   puerto=htons(npuerto);
   
-  //Creamos el socket
+ 
   if((socketfd=socket(AF_INET,SOCK_DGRAM,0))<0){
     perror("socket");
     exit(EXIT_FAILURE);
   }
-  //Llenamos las direcciones del cliente y servidor
+  
   
   myaddr.sin_family = AF_INET;
   myaddr.sin_port = 0;
@@ -57,19 +56,19 @@ int main(int argc, char *argv[]){
   serveraddr.sin_family = AF_INET;
   serveraddr.sin_port=puerto;
   serveraddr.sin_addr=ip;
-  //bindeamos el socket en la direccion del cliente
+  
   if(bind(socketfd,(struct sockaddr *)&myaddr, sizeof(myaddr))<0){
     perror("bind");
     exit(EXIT_FAILURE);
   }
-  //Enviamos la cadena a la direccion del servidor
+  
   if(sendto(socketfd,cadena,80,0,(struct sockaddr *)&serveraddr,sizeof(serveraddr))<0){
     perror("sendto");
     exit(EXIT_FAILURE);
   }
-  printf("cadena enviada: %s\n",cadena);
+  printf("Text sent: %s\n",cadena);
   fflush(stdout); 
-  //Recibimos la cadena transformada
+	
   if(recvfrom(socketfd,cadena,80,0,(struct sockaddr *)&serveraddr,&socksize)<0){
     perror("recvfrom");
     exit(EXIT_FAILURE);

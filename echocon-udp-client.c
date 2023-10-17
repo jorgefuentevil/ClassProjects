@@ -75,6 +75,7 @@ int main(int argc, char *argv[]){
   }
   printf("%s\n",cadena);
   fflush(stdout);
+  close(socketfd);
   return 0;
 }
 

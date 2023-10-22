@@ -10,10 +10,10 @@
 
 int main(int argc, char *argv[]){
   int socketfd;
-  char* cadena; 
+  char* text; 
   struct in_addr ip;
-  int npuerto=5;
-  uint16_t puerto; 
+  int nport=5;
+  uint16_t port; 
   struct sockaddr_in  myaddr;
   struct sockaddr_in  serveraddr;
   socklen_t socksize=sizeof(struct sockaddr_in);
@@ -27,20 +27,20 @@ int main(int argc, char *argv[]){
 		fprintf(stderr,"Argument %s does not exist",argv[2]);
 		exit(0);
 	}
-        if(sscanf(argv[3],"%i",&npuerto)!=1){
+        if(sscanf(argv[3],"%i",&nport)!=1){
         	 fprintf(stderr,"Incorrect port");
 		 exit(0);
 	}
-	cadena=argv[4];
+	text=argv[4];
   }
   else{
-	  cadena=argv[2];
+	  text=argv[2];
   }
   if(inet_aton(argv[1],&ip)==0){
 	  fprintf(stderr,"Not valid ip\n");
 	  exit(0);
   }
-  puerto=htons(npuerto);
+  port=htons(nport);
   
  
   if((socketfd=socket(AF_INET,SOCK_DGRAM,0))<0){
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
   myaddr.sin_addr.s_addr=INADDR_ANY;
 
   serveraddr.sin_family = AF_INET;
-  serveraddr.sin_port=puerto;
+  serveraddr.sin_port=port;
   serveraddr.sin_addr=ip;
   
   if(bind(socketfd,(struct sockaddr *)&myaddr, sizeof(myaddr))<0){
@@ -62,18 +62,18 @@ int main(int argc, char *argv[]){
     exit(EXIT_FAILURE);
   }
   
-  if(sendto(socketfd,cadena,80,0,(struct sockaddr *)&serveraddr,sizeof(serveraddr))<0){
+  if(sendto(socketfd,text,80,0,(struct sockaddr *)&serveraddr,sizeof(serveraddr))<0){
     perror("sendto");
     exit(EXIT_FAILURE);
   }
-  printf("Text sent: %s\n",cadena);
+  printf("Text sent: %s\n",text);
   fflush(stdout); 
 	
-  if(recvfrom(socketfd,cadena,80,0,(struct sockaddr *)&serveraddr,&socksize)<0){
+  if(recvfrom(socketfd,text,80,0,(struct sockaddr *)&serveraddr,&socksize)<0){
     perror("recvfrom");
     exit(EXIT_FAILURE);
   }
-  printf("%s\n",cadena);
+  printf("%s\n",text);
   fflush(stdout);
   close(socketfd);
   return 0;

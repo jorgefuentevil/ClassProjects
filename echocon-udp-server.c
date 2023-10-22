@@ -10,10 +10,10 @@
 #include <unistd.h>
 
 int main(int argc, char *argv[]){
- int npuerto=5,i,socketfd;
- char cadena[80]; 
+ int nport=5,i,socketfd;
+ char text[80]; 
  struct sockaddr_in myaddr,clientaddr;
- uint16_t puerto;
+ uint16_t port;
  socklen_t socksize;
 
 if(argc>3){
@@ -25,17 +25,17 @@ if(argc>3){
     fprintf(stderr,"Only possible argument is -p\n");
     exit(0);
   }
-  npuerto=atoi(argv[2]);
+  nport=atoi(argv[2]);
  }
 
- puerto=htons(npuerto);
+ port=htons(nport);
  if((socketfd=socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP))<0){
     perror("socket");
     exit(EXIT_FAILURE);
  }
 
  myaddr.sin_family=AF_INET;
- myaddr.sin_port=puerto;
+ myaddr.sin_port=port;
  myaddr.sin_addr.s_addr=INADDR_ANY;
  socksize=sizeof(struct sockaddr_in);
 
@@ -44,24 +44,24 @@ if(argc>3){
       exit(EXIT_FAILURE);
  }	
  while(1){
-   if(recvfrom(socketfd,cadena,80,0,(struct sockaddr*) &clientaddr,&socksize)<0){
+   if(recvfrom(socketfd,text,80,0,(struct sockaddr*) &clientaddr,&socksize)<0){
 	  perror("recvfrom");
 	  exit(EXIT_FAILURE);
    }
-   printf("Recived:%s\n",cadena);
+   printf("Recived:%s\n",text);
    fflush(stdout);
    //Change uppercase to lowercase or vice versa
-   for(i=0;i<strlen(cadena);i++){
-      if(cadena[i]>=97){
-	 cadena[i]=toupper(cadena[i]);
+   for(i=0;i<strlen(text);i++){
+      if(text[i]>=97){
+	 text[i]=toupper(text[i]);
       }else{
-	cadena[i]=tolower(cadena[i]);
+	text[i]=tolower(text[i]);
       }
   }
-  printf("Devolviendo: %s\n",cadena);
+  printf("Devolviendo: %s\n",text);
   fflush(stdout);
 
-  if(sendto(socketfd,cadena,80,0,(struct sockaddr*) &clientaddr,socksize)<0){
+  if(sendto(socketfd,text,80,0,(struct sockaddr*) &clientaddr,socksize)<0){
 	 perror("sendto()");
 	  exit(EXIT_FAILURE);
    }

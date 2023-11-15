@@ -1,4 +1,4 @@
-// Practica Tema 6: de la Fuente Villanueva, Jorge
+// Done by Jorge de la Fuente Villanueva
 
 #include <stdio.h>
 #include <stdlib.h>

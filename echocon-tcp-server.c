@@ -1,5 +1,4 @@
-// Done by Jorge de la Fuente Villanueva
-
+// Practica Tema 6: de la Fuente Villanueva, Jorge
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,22 +13,24 @@
 
 int socketfd;
 
-//Funcion que se ejecuta al pulsar ctl+c, esta se asegura de cerrar la conexion y no dejar bloqueado el servicio del puerto
 void signal_handler(int signal){
 	shutdown(socketfd,SHUT_RDWR);
  	close(socketfd);
+	exit(-1);
 }
 
 int main(int argc, char *argv[]){
+ 
+ signal(SIGINT,signal_handler);
+ 
  int npuerto=5,i,pid,fd;
  char cadena[80]; 
  struct sockaddr_in myaddr,clientaddr;
  uint16_t puerto;
- socklen_t socksize;
+ unsigned int socksize;
 
- signal(SIGINT,signal_handler);
  //Comprobamos que los argumentos son correctos
- if(argc>3){
+ if(argc>3 || argc==2){
   fprintf(stderr,"El numero de argumentos es incorrecto\n");
   exit(0);
  }
@@ -51,33 +52,22 @@ int main(int argc, char *argv[]){
  //Llenamos el struct address y bindeamos el socket en esta direccion
  myaddr.sin_family=AF_INET;
  myaddr.sin_port=puerto;
- myaddr.sin_addr.s_addr=INADDR_ANY;
- socksize=sizeof(struct sockaddr_in);
+ myaddr.sin_addr.s_addr=htonl(INADDR_ANY);
 
-//Bindeamos el socket para así poder recibir y enviar los paquetes con una direccion
  if(bind(socketfd,(struct sockaddr*) &myaddr,sizeof(myaddr))<0){
       perror("bind");
       exit(EXIT_FAILURE);
  }
- //Establecemos una cola para las conexiones con un maximo de 30 conexiones simultaneas
- if(listen(socketfd,30)<0){
+ if(listen(socketfd,10)<0){
 	perror("listen");
        exit(EXIT_FAILURE);
  }       
  while(1){
-  //Aceptamos la solicitud del cliente y establecemos la conexion tcp
-  if((fd=accept(socketfd,(struct sockaddr*) &clientaddr,&socksize))<0){
-  	//Solo salta el mensaje de error si no se ha hecho un cntr+c.
-    //Sin esta parte al pulsar este comando me salian muchos mensajes de error sin existir estos
-    if(fd == -1 && errno ==  EBADF){ 
-		  exit(EXIT_FAILURE);
-  	}
-	perror("accept");
+  if((fd=accept(socketfd,(struct sockaddr*) &clientaddr,&socksize))==-1 && errno==EBADF){
+  	perror("accept");
 	exit(EXIT_FAILURE);
-  }
-  //Creamos un hijo que se va a dedicar a ejecutar la funcionalidad del echo
+  } 
   pid=fork();
-  //Discriminamos si es el hijo el que esta ejecutando esto
   if(pid==0){
     //Recibe la cadena
     if(recv(fd,cadena,80,0)<0){
@@ -94,8 +84,8 @@ int main(int argc, char *argv[]){
 	  cadena[i]=tolower(cadena[i]);
         }
     }
-    printf("Devolviendo: %s\n",cadena);
-    fflush(stdout);
+    //printf("Devolviendo: %s\n",cadena);
+    //fflush(stdout);
     //Devolvemos la nueva cadena al cliente
     if(send(fd,cadena,80,0)<0){
  	   perror("sendto()");
@@ -103,8 +93,14 @@ int main(int argc, char *argv[]){
     }
     shutdown(fd,SHUT_RDWR);
     close(fd);
+    exit(EXIT_SUCCESS);
   }
  }
+ shutdown(socketfd,SHUT_RDWR);
+ close(socketfd);
+ //printf("El mensaje ha sido enviado\n");
+ // fflush(stdout);
+ 
  return(0);
 }
 

@@ -1,5 +1,4 @@
-// Done by Jorge de la Fuente Villanueva
-
+// Practica Tema 6: de la Fuente Villanueva, Jorge
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -24,16 +23,20 @@ int main(int argc, char *argv[]){
    	 fprintf(stderr,"Numero de parametros incorrecto\n");
    	 exit(0);
   }
+  if(argc==4){
+    fprintf(stderr,"La cadena no puede enviar vacia\n");
+    exit(0);
+  }
   if(argc==5){
   	if(strcmp(argv[2],"-p")!=0){
-		fprintf(stderr,"El parametro %s no existe",argv[2]);
-		exit(0);
-	}
-        if(sscanf(argv[3],"%i",&npuerto)!=1){
-        	 fprintf(stderr,"El puerto es incorrecto");
-		 exit(0);
-	}
-	cadena=argv[4];
+      fprintf(stderr,"El parametro %s no existe\n",argv[2]);
+      exit(0);
+    }
+    if(sscanf(argv[3],"%i",&npuerto)!=1){
+    	fprintf(stderr,"El puerto es incorrecto\n");
+		  exit(0);
+	  }
+	  cadena=argv[4];
   }
   else{
 	  cadena=argv[2];

@@ -1,5 +1,4 @@
-// Practica Tema 7: de la Fuente Villanueva, Jorge
-
+//Practica Tema 7: de la Fuente Villanueva, ,Jorge
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -23,7 +22,7 @@ char* mensajeError[]={
 char paquete[516];
 int verbose;
 
-//TODO Actualizar errores
+
 void funcionLectura(char* archivo,int socketfd, struct sockaddr_in  serveraddr, socklen_t socksize,char* ip){
   char ack[4];
   int tamano;
@@ -56,7 +55,7 @@ void funcionLectura(char* archivo,int socketfd, struct sockaddr_in  serveraddr, 
     		exit(EXIT_FAILURE);
   	}
 	if(paquete[1] == 5){
-		printf("Error: %s\n",mensajeError[(unsigned char)paquete[2]*255+(unsigned char)paquete[3]]);
+		printf("Error: %s:%s\n",mensajeError[(unsigned char)paquete[2]*256+(unsigned char)paquete[3]],paquete+4);
 		fclose(fichero);
 		remove(archivo);
 		exit(1);
@@ -73,7 +72,8 @@ void funcionLectura(char* archivo,int socketfd, struct sockaddr_in  serveraddr, 
 		remove(archivo);
 		exit(1);
 	}
-	nbloqueV=nbloque;
+	nbloqueV+=1;
+	nbloque+=1;
 	ack[0] = 0; // Ponemos la cabecera de ack con el numero de bloque correspondiente
   	ack[1] = 4;
 	ack[2] = paquete[2];
@@ -104,7 +104,7 @@ void funcionLectura(char* archivo,int socketfd, struct sockaddr_in  serveraddr, 
   fclose(fichero);
 }
 
-//TODO Hacer Verbose
+
 void funcionEscritura(char* archivo,int socketfd, struct sockaddr_in  serveraddr, socklen_t socksize,char* ip){
   FILE *fichero;
   unsigned short nbloque,nbloqueV=0;
@@ -134,13 +134,13 @@ void funcionEscritura(char* archivo,int socketfd, struct sockaddr_in  serveraddr
   		perror("recvfrom lectura");
     		exit(EXIT_FAILURE);
   	}
+	nbloque=((unsigned char)paquete[2])*256 + (unsigned char)paquete[3];
 	if(paquete[1] == 5){
-		printf("Error: %s\n",mensajeError[(unsigned char)paquete[2]*255+(unsigned char)paquete[3]]);
+		printf("Error: %s %s\n",mensajeError[nbloque],paquete+4);
 		fclose(fichero);
 		exit(1);
 	}
   	
-	nbloque=((unsigned char)paquete[2])*256 + (unsigned char)paquete[3];
   	//Comprobamos que llega el ack con el numero de bloque correcto
 	if(nbloque!=nbloqueV){
 		printf("Error en la escritura, el numero de bloque es incorrecto\n");
@@ -168,25 +168,15 @@ void funcionEscritura(char* archivo,int socketfd, struct sockaddr_in  serveraddr
 		fclose(fichero);
 		exit(EXIT_FAILURE);
   	}
-
-	if(recvfrom(socketfd,paquete,516,0,(struct sockaddr *)&serveraddr,&socksize)<0){
-  		perror("recvfrom lectura");
-		fclose(fichero);
-    		exit(EXIT_FAILURE);
-  	}
-	if(paquete[1] == 5){
-		printf("Error: %s\n",mensajeError[(unsigned char)paquete[2]*255+(unsigned char)paquete[3]]);
-		fclose(fichero);
-		exit(1);
-	}
-
   	if(verbose){
 	  printf("Enviado el paquete numero %hu\n",nbloque);
 	  fflush(stdout);
   	}
 
   }while(tam==512); //Se enviaran paquetes hasta que no esten llenos 
-
+  if(verbose){
+	printf("Se acabo la escritura\n");
+  }
   fclose(fichero);
 
 }
@@ -244,6 +234,7 @@ int main(int argc, char *argv[]){
     exit(EXIT_FAILURE);
   }
   
+  //Procedemos segun sea la entrada indicada
   if(argv[2][1]=='r'){
 	  funcionLectura(argv[3],socketfd,serveraddr,socksize,argv[1]);
   }else if(argv[2][1]=='w'){

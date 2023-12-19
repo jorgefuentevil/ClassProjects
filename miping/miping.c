@@ -12,6 +12,7 @@
 
 int verbose=0;
 
+//Funcion que calcula el checksum dado el puntero y tamaño del paquete
 unsigned short calculoCheck(unsigned short* puntero, int size){
 	
 	int i;
@@ -26,6 +27,7 @@ unsigned short calculoCheck(unsigned short* puntero, int size){
 	return ~(sumaparcial & 0x0000ffff);
 
 }
+//Funcion que muestra el mensaje de error correspondiente si lo hay
 void mensajeError(unsigned char type,unsigned char code){
 	switch(type){
 		case 0:
@@ -174,23 +176,27 @@ int main(int argc, char *argv[]){
   strcpy(request.payload,cadena);
  //Enviamos la cadena a la direccion del servidor calculando antes el checksum
   request.icmpHdr.checksum=calculoCheck((unsigned short*) &request,(int)sizeof(request)/2);
-  printf("%d\n",calculoCheck((unsigned short*) &request,(int)sizeof(request)/2));
+  
   if(verbose){
   	printf("->Generando cabecera ICMP\n->Type: %hu\n->CODE:%hu\n->PID: %hu\n->Secuence Number: %hu\n->Cadena a enviar: %s\n->Checksum: %hx\n->Tama�o total del datagrama:%lu\n",request.icmpHdr.type,request.icmpHdr.code,request.pid,request.sequence,request.payload,request.icmpHdr.checksum,sizeof(request));
   }
+  //Enviamos el ping
   if(sendto(socketfd,&request,sizeof(request),0,(struct sockaddr *)&serveraddr,size)<0){
     perror("sendto");
     exit(EXIT_FAILURE);
   }
   printf("Mensaje enviado a la ip %s\n\n",inet_ntoa(ip));
 
-  //Recibimos la cadena transformada
+  //Recibimos la respuesta icmp
   if((resp=recvfrom(socketfd,&replay,sizeof(replay),0,(struct sockaddr *)&serveraddr,&size))<0){
     perror("recvfrom");
     exit(EXIT_FAILURE);
   }
   printf("Replay recibido de la ip: %s\n",inet_ntoa(ip));
+
+  //Comprobamos si la respuesta es de error
   mensajeError(replay.icmpMsg.icmpHdr.type,replay.icmpMsg.icmpHdr.code);
+  //Calculamos el checksum para comprobar que no esta corrupto el paquete
   if(calculoCheck((unsigned short*)&replay,(int)sizeof(replay)/2)!=0){
   	fprintf(stderr, "Mensaje corrupto\n");
 	exit(EXIT_FAILURE);
@@ -198,7 +204,7 @@ int main(int argc, char *argv[]){
   if(verbose){
 	printf("->Tama�o de la respuesta:%lu\n->Cadena Recibida:%s\n->PID: %hu\n->TTL:%hu\n",sizeof(replay),replay.icmpMsg.payload,replay.icmpMsg.pid,replay.ipHdr.TTL);
   }
-
+  //Cerramos el paquete
   close(socketfd);
   return 0;
 }

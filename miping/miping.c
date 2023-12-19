@@ -1,3 +1,4 @@
+//Practica Tema 8: de la Fuente Villanueva, Jorge
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -175,7 +176,7 @@ int main(int argc, char *argv[]){
   request.icmpHdr.checksum=calculoCheck((unsigned short*) &request,(int)sizeof(request)/2);
   printf("%d\n",calculoCheck((unsigned short*) &request,(int)sizeof(request)/2));
   if(verbose){
-  	printf("->Generando cabecera ICMP\n->Type: %hu\n->CODE:%hu\n->PID: %hu\n->Secuence Number: %hu\n->Cadena a enviar: %s\n->Checksum: %hx\n->Tamaño total del datagrama:%lu\n",request.icmpHdr.type,request.icmpHdr.code,request.pid,request.sequence,request.payload,request.icmpHdr.checksum,sizeof(request));
+  	printf("->Generando cabecera ICMP\n->Type: %hu\n->CODE:%hu\n->PID: %hu\n->Secuence Number: %hu\n->Cadena a enviar: %s\n->Checksum: %hx\n->Tamaï¿½o total del datagrama:%lu\n",request.icmpHdr.type,request.icmpHdr.code,request.pid,request.sequence,request.payload,request.icmpHdr.checksum,sizeof(request));
   }
   if(sendto(socketfd,&request,sizeof(request),0,(struct sockaddr *)&serveraddr,size)<0){
     perror("sendto");
@@ -195,7 +196,7 @@ int main(int argc, char *argv[]){
 	exit(EXIT_FAILURE);
   }
   if(verbose){
-	printf("->Tamaño de la respuesta:%lu\n->Cadena Recibida:%s\n->PID: %hu\n->TTL:%hu\n",sizeof(replay),replay.icmpMsg.payload,replay.icmpMsg.pid,replay.ipHdr.TTL);
+	printf("->Tamaï¿½o de la respuesta:%lu\n->Cadena Recibida:%s\n->PID: %hu\n->TTL:%hu\n",sizeof(replay),replay.icmpMsg.payload,replay.icmpMsg.pid,replay.ipHdr.TTL);
   }
 
   close(socketfd);

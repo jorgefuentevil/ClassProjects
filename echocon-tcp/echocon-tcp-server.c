@@ -75,7 +75,6 @@ int main(int argc, char *argv[]){
 	  exit(EXIT_FAILURE);
     }
     printf("Recibido:%s\n",cadena);
-    fflush(stdout);
     //Funcion que cambia mayusculas por minusculas
     for(i=0;i<strlen(cadena);i++){
         if(cadena[i]>=97){
@@ -84,8 +83,7 @@ int main(int argc, char *argv[]){
 	  cadena[i]=tolower(cadena[i]);
         }
     }
-    //printf("Devolviendo: %s\n",cadena);
-    //fflush(stdout);
+    
     //Devolvemos la nueva cadena al cliente
     if(send(fd,cadena,80,0)<0){
  	   perror("sendto()");
@@ -98,8 +96,7 @@ int main(int argc, char *argv[]){
  }
  shutdown(socketfd,SHUT_RDWR);
  close(socketfd);
- //printf("El mensaje ha sido enviado\n");
- // fflush(stdout);
+
  
  return(0);
 }

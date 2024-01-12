@@ -81,14 +81,12 @@ int main(int argc, char *argv[]){
     exit(EXIT_FAILURE);
   }
   printf("cadena enviada: %s\n",cadena);
-  fflush(stdout); 
   //Recibimos la cadena transformada
   if(recv(socketfd,cadena,80,0)<0){
     perror("recv");
     exit(EXIT_FAILURE);
   }
   printf("%s\n",cadena);
-  fflush(stdout);
   return 0;
 }
 

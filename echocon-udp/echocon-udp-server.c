@@ -51,7 +51,6 @@ if(argc>3){
 	  exit(EXIT_FAILURE);
    }
    printf("Recived:%s\n",text);
-   fflush(stdout);
    //Change uppercase to lowercase or vice versa
    for(i=0;i<strlen(text);i++){
       if(text[i]>=97){
@@ -61,14 +60,12 @@ if(argc>3){
       }
   }
   printf("Devolviendo: %s\n",text);
-  fflush(stdout);
 
   if(sendto(socketfd,text,80,0,(struct sockaddr*) &clientaddr,socksize)<0){
 	 perror("sendto()");
 	  exit(EXIT_FAILURE);
    }
    printf("Message has been sent\n");
-   fflush(stdout);
  }
  close(socketfd);
  return(0);

@@ -70,14 +70,12 @@ int main(int argc, char *argv[]){
     exit(EXIT_FAILURE);
   }
   printf("Text sent: %s\n",text);
-  fflush(stdout); 
 	
   if(recvfrom(socketfd,text,80,0,(struct sockaddr *)&serveraddr,&socksize)<0){
     perror("recvfrom");
     exit(EXIT_FAILURE);
   }
   printf("%s\n",text);
-  fflush(stdout);
   close(socketfd);
   return 0;
 }
